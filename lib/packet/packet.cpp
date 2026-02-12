@@ -48,7 +48,7 @@ void packet::safetyPacket(uint8_t ID, uint8_t deviceType, double latitude, doubl
     memcpy(returnPacket, &pkt, sizeof(SafetyPayload));
 }
 
-void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, double longitude, uint8_t batteryLevel, int32_t last5positions[5][2], uint8_t last5events[5], uint8_t status, uint8_t *returnPacket) {
+void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, double longitude, uint8_t batteryLevel, int32_t last5positions[5][2], uint8_t last5events[5], uint8_t status, uint8_t satellites, double hdop, uint8_t *returnPacket) {
     MonitoringPayload pkt;
     memset(&pkt, 0, sizeof(MonitoringPayload));
 
@@ -58,6 +58,8 @@ void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, 
     pkt.lat = latitude; // Cuidado: double no ESP32 é 8 bytes. Se o receptor for 8-bit, pode dar erro.
     pkt.lng = longitude;
     pkt.batteryLevel = batteryLevel;
+    pkt.satellites = satellites;
+    pkt.hdop = hdop;
 
     memcpy(pkt.last5positions, last5positions, sizeof(pkt.last5positions));
     memcpy(pkt.last5events, last5events, sizeof(pkt.last5events));
@@ -119,6 +121,8 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         monitoringPacketData.lng = pkt->lng;
         monitoringPacketData.batteryLevel = pkt->batteryLevel;
         monitoringPacketData.status = pkt->status;
+        monitoringPacketData.satellites = pkt->satellites;
+        monitoringPacketData.hdop = pkt->hdop;
 
         memcpy(monitoringPacketData.last5positions, pkt->last5positions, sizeof(pkt->last5positions));
         memcpy(monitoringPacketData.last5events, pkt->last5events, sizeof(pkt->last5events));
@@ -177,13 +181,61 @@ uint8_t packet::getAdvertiseID() {
 }
 
 float packet::getLat() {
-    return (float)safetyPacketData.lat / 1000000.0;
+
+    if(_lastDecodedPacketType == SAFETY_PACKET) {
+        return (float)safetyPacketData.lat / 1000000.0;
+    } else if(_lastDecodedPacketType == MONITORING_PACKET) {
+        return monitoringPacketData.lat;
+    }
+    return 0.0;
 }
 
 float packet::getLng() {
-    return (float)safetyPacketData.lng / 1000000.0;
+    if(_lastDecodedPacketType == SAFETY_PACKET) {
+        return (float)safetyPacketData.lng / 1000000.0;
+    } else if(_lastDecodedPacketType == MONITORING_PACKET) {
+        return monitoringPacketData.lng;
+    }
+    return 0.0;
 }
 
 float packet::getHdop() {
-    return safetyPacketData.hdop;
+    if(_lastDecodedPacketType == SAFETY_PACKET) {
+        return safetyPacketData.hdop;
+    } else if(_lastDecodedPacketType == MONITORING_PACKET) {
+        return monitoringPacketData.hdop;
+    }
+    return 0.0;
+}
+uint8_t packet::getBatteryLevel() {
+    if(_lastDecodedPacketType == MONITORING_PACKET) {
+        return monitoringPacketData.batteryLevel;
+    }
+    return 0;
+}
+uint8_t packet::getStatus() {
+    if(_lastDecodedPacketType == MONITORING_PACKET) {
+        return monitoringPacketData.status;
+    }
+    return 0;
+}
+uint8_t packet::getSatellites() {
+    if(_lastDecodedPacketType == MONITORING_PACKET) {
+        return monitoringPacketData.satellites;
+    }
+    return 0;
+}
+void packet::getLast5Positions(int32_t (&positions)[5][2]) {
+    if(_lastDecodedPacketType == MONITORING_PACKET) {
+        memcpy(positions, monitoringPacketData.last5positions, sizeof(monitoringPacketData.last5positions));
+    } else {
+        memset(positions, 0, sizeof(positions));
+    }
+}
+void packet::getLast5Events(uint8_t (&events)[5]) {
+    if(_lastDecodedPacketType == MONITORING_PACKET) {
+        memcpy(events, monitoringPacketData.last5events, sizeof(monitoringPacketData.last5events));
+    } else {
+        memset(events, 0, sizeof(events));
+    }
 }
