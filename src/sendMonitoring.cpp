@@ -43,5 +43,6 @@ void setup() {
  
 void loop() {
   MF.SetVehicleConst(vehicle);
+  MF.ReceivePacketDevice(vehicle, st_safety, jitterTargetTime, waitingToSend, hastarget);
   MF.SendPacketDevice(vehicle, st_safety, st_monitoring, jitterTargetTime);
 }
