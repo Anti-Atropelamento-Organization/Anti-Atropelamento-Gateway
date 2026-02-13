@@ -20,7 +20,6 @@ void setup() {
 void loop()
 {
     //MF.SendPacketDevice(gate, st_1, st_2, jitterTargetTime); // Usando o timeout do timer como referência para o jitter
-
     if(gate.receive()){
     Serial.println("dados recebidos:");
         Serial.print("ID: "); Serial.println(gate.getID());
