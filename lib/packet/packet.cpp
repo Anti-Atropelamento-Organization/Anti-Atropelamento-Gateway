@@ -48,7 +48,7 @@ void packet::safetyPacket(uint8_t ID, uint8_t deviceType, double latitude, doubl
     memcpy(returnPacket, &pkt, sizeof(SafetyPayload));
 }
 
-void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, double longitude, uint8_t batteryLevel, int32_t last5positions[5][2], uint8_t last5events[5], uint8_t status, uint8_t satellites, double hdop, uint8_t *returnPacket) {
+void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, double longitude, uint8_t batteryLevel, int32_t last5positions[5][2], uint8_t last5events[5], uint8_t status, uint8_t satellites, double hdop, ActiveVehicles nearbyVehicles[MAX_VEHICLES], uint8_t *returnPacket) {
     MonitoringPayload pkt;
     memset(&pkt, 0, sizeof(MonitoringPayload));
 
@@ -63,6 +63,7 @@ void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, 
 
     memcpy(pkt.last5positions, last5positions, sizeof(pkt.last5positions));
     memcpy(pkt.last5events, last5events, sizeof(pkt.last5events));
+    memcpy(pkt.nearbyVehicles, nearbyVehicles, sizeof(pkt.nearbyVehicles));
     pkt.status = status;
 
     memcpy(returnPacket, &pkt, sizeof(MonitoringPayload));
@@ -126,6 +127,7 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
 
         memcpy(monitoringPacketData.last5positions, pkt->last5positions, sizeof(pkt->last5positions));
         memcpy(monitoringPacketData.last5events, pkt->last5events, sizeof(pkt->last5events));
+        memcpy(monitoringPacketData.nearbyVehicles, pkt->nearbyVehicles, sizeof(pkt->nearbyVehicles));
 
 
     } else if (packetID == ADVERTISE_PACKET) {
