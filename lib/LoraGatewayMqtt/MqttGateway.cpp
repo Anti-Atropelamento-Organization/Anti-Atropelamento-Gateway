@@ -43,13 +43,16 @@ bool MqttGateway::isConnected() {
     return client.connected();
 }
 
-void MqttGateway::publishData(uint8_t id, double lat, double lng, float battery, uint8_t events[5]) {
+void MqttGateway::publishData(uint8_t id, uint8_t deviceType, double lat, double lng, uint8_t battery, uint8_t status, double hdop, uint8_t events[5]) {
     JsonDocument doc;
     
     doc["id"] = id;
+    doc["deviceType"] = deviceType;
     doc["latitude"] = serialized(String(lat, 6)); 
     doc["longitude"] = serialized(String(lng, 6));
     doc["battery"] = battery;
+    doc["status"] = status;
+    doc["hdop"] = hdop;
     
     JsonArray envtArray = doc["eventos"].to<JsonArray>();
     for(int i=0; i<5; i++) {
@@ -62,6 +65,7 @@ void MqttGateway::publishData(uint8_t id, double lat, double lng, float battery,
     serializeJson(doc, buffer);
     
     if (client.publish("gateway/data", buffer)) {
+        Serial.println();
         Serial.print("MQTT Enviado: ");
         Serial.println(buffer);
     }

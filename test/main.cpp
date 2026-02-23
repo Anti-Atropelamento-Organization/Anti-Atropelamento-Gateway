@@ -14,12 +14,12 @@ void loop() {
     mqtt.handle();
 
     uint8_t id = 1;
-    double lat = -23.5505;
-    double lng = -46.6333;
+    double lat = -19.967759;
+    double lng = -43.955429;
     float battery = 70.5;
     uint8_t meusEventos[5] = {0, 1, 0, 0, 1};
 
-    if (mqttTimer.isReady()) { 
+    if (mqttTimer.isReady()) {
         mqtt.publishData(id, lat, lng, battery, meusEventos);
         mqttTimer.reset();
     }

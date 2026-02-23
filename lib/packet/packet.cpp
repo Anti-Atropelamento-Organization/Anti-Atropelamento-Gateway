@@ -127,7 +127,7 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         MonitoringPayload *pkt = (MonitoringPayload*)receivedPacket;
 
         monitoringPacketData.packetID = pkt->packetType;
-        monitoringPacketData.ID = pkt->id; // Agora lê corretamente
+        monitoringPacketData.ID = pkt->id; 
         monitoringPacketData.deviceType = pkt->deviceType;
         monitoringPacketData.lat = pkt->lat;
         monitoringPacketData.lng = pkt->lng;
@@ -149,7 +149,6 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
     } else if (packetID == ADVERTISE_PACKET) {
         AdvertisePayload *pkt = (AdvertisePayload*)receivedPacket;
         
-
         advertisePacketData.deviceID = pkt->deviceID;
         advertisePacketData.ID = pkt->id; // Lê ID do remetente
         
