@@ -71,6 +71,7 @@ void mainFunctions::SendPacketDevice(DeviceBase& device, SimpleTimer& st_safety,
               return;
             }
             device.sendMonitoring();
+            device.isChannelBusy(SAFETY_CHANNEL); // Força atualização do estado do canal de segurança
             st_monitoring.reset();
             Serial.println(">>> Enviado: MONITORING");
 

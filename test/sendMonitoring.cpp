@@ -19,8 +19,8 @@
 mainFunctions MF;
 VehicleDevice vehicle;
  
-SimpleTimer st_safety(30000);
-SimpleTimer st_monitoring(3000);
+SimpleTimer st_safety(5000);
+SimpleTimer st_monitoring(30000);
  
 unsigned long jitterTargetTime = 0;
 bool waitingToSend = false;
@@ -35,7 +35,7 @@ void setup() {
   Serial1.begin(115200,SERIAL_8N1,33,34);    
   Serial.println("GPS_test");
  
-  vehicle.setID(20);
+  vehicle.setID(7);
   vehicle.setup();
  
   randomSeed((uint32_t)esp_random() ^ (uint32_t)micros());

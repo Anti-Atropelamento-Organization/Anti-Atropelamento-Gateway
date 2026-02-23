@@ -39,13 +39,17 @@ uint8_t LoraGateway::getBatteryLevel()
 {
     return 0;
 }
-int32_t (*LoraGateway::getLast5Positions())[2]
+void LoraGateway::getLastPositions(int32_t (&positions)[5][2])
 {
-    return last5positions;
+    pckt.getLast5Positions(positions);
 }
-void LoraGateway::getLast5Events(uint8_t (&events)[5])
+void LoraGateway::getLastEvents(uint8_t (&events)[5])
 {
     pckt.getLast5Events(events);
+}
+void LoraGateway::getNearbyVehicles(ActiveVehicles (&vehicles)[MAX_VEHICLES])
+{
+    pckt.getNearbyVehicles(vehicles);
 }
 uint8_t LoraGateway::getStatus()
 {

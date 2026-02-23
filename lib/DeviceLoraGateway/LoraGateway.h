@@ -15,8 +15,9 @@ public:
     double getLatitude();
     double getLongitude();
     uint8_t getBatteryLevel();
-    int32_t (*getLast5Positions())[2];
-    void getLast5Events(uint8_t (&events)[5]);
+    void getLastPositions(int32_t (&positions)[5][2]);
+    void getLastEvents(uint8_t (&events)[5]);
+    void getNearbyVehicles(ActiveVehicles (&vehicles)[MAX_VEHICLES]);
     uint8_t getStatus();
     uint8_t getSatellites();
     double getHdop();
