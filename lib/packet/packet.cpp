@@ -5,6 +5,7 @@ SafetyData safetyPacketData;
 MonitoringData monitoringPacketData;
 AdvertiseData advertisePacketData;
 LogData logPacketData;
+AckData ackData;
 
 // Construtor
 packet::packet() {
@@ -66,6 +67,16 @@ void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, 
     memcpy(returnPacket, &pkt, sizeof(MonitoringPayload));
 }
 
+void packet::ackPacket(uint8_t ID, uint16_t RandomID, uint8_t *returnPacket) {
+    AckPayload pkt;
+    memset(&pkt, 0, sizeof(AckPayload));
+
+    pkt.ID = ID;
+    pkt.RandomID = RandomID;
+
+    memcpy(returnPacket, &pkt, ACK_PACKET_SIZE);
+}
+
 void packet::advertisePacket(uint8_t ID, uint8_t deviceID, uint8_t *returnPacket) {
     AdvertisePayload pkt;
     memset(&pkt, 0, sizeof(AdvertisePayload));
@@ -74,7 +85,7 @@ void packet::advertisePacket(uint8_t ID, uint8_t deviceID, uint8_t *returnPacket
     pkt.id = ID;
     pkt.deviceID = deviceID;
 
-    memcpy(returnPacket, &pkt, sizeof(AdvertisePayload));
+    memcpy(returnPacket, &pkt, ADVERTISE_PACKET_SIZE);
 }
 
 void packet::logPacket(uint8_t ID, uint8_t deviceID, int32_t last5positions[5][2], uint8_t last5events[5], ActiveVehicles nearbyVehicles[MAX_VEHICLES], uint8_t *returnPacket) {
@@ -88,7 +99,7 @@ void packet::logPacket(uint8_t ID, uint8_t deviceID, int32_t last5positions[5][2
     memcpy(pkt.last5events, last5events, sizeof(pkt.last5events));
     memcpy(pkt.nearbyVehicles, nearbyVehicles, sizeof(pkt.nearbyVehicles));
 
-    memcpy(returnPacket, &pkt, sizeof(LogPayLoad));
+    memcpy(returnPacket, &pkt, LOG_PACKET_SIZE);
 }
 
 // --- DECODIFICADOR (RX) ---
@@ -175,6 +186,12 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
             }
 
     }
+    else if(packetID == ACK_PACKET) {
+        AckPayload *pkt = (AckPayload*)receivedPacket;
+
+        ackData.ID = pkt->ID;
+        ackData.RandomID = pkt->RandomID;
+    }
     return packetID;
 }
 
@@ -199,6 +216,12 @@ uint8_t packet::getDeviceID() {
         return logPacketData.ID;
     }
     return 0; // Se não for nenhum conhecido
+}
+uint16_t packet::getAckRandomID() {
+    if(_lastDecodedPacketType == ACK_PACKET) {
+        return ackData.RandomID;
+    }
+    return 0;
 }
 
 uint8_t packet::getDeviceType() {
