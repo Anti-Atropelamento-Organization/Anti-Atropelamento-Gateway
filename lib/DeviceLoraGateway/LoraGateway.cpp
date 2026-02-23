@@ -64,3 +64,18 @@ double LoraGateway::getHdop()
     return pckt.getHdop();
 }
 
+
+uint16_t LoraGateway::getRandomPacketID() {
+    return pckt.getAckRandomID();
+}
+
+void LoraGateway::sendAck() {
+    lora.sendData(ackPacket, ACK_PACKET_SIZE);
+}
+
+void LoraGateway::buildAck(uint8_t targetID, uint16_t packetID) {
+    pckt.ackPacket(targetID, packetID, ackPacket);
+}
+
+
+

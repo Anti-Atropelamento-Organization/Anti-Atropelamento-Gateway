@@ -93,6 +93,7 @@ protected:
     uint8_t monitoringPacket[MONITORING_PACKET_SIZE];
     uint8_t logPacket[LOG_PACKET_SIZE];
     uint8_t receivedPacket[255];
+    uint8_t ackPacket[ACK_PACKET_SIZE];
 
     double speed = 0.0;
     double deviceCourse = 0.0;

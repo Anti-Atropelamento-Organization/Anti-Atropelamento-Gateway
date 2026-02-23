@@ -56,11 +56,6 @@ void DeviceBase::setHdop() { deviceHdop = gps.hdop.hdop(); }
 
 
 void DeviceBase::sendSafety() {
-    double currentSpeed = (deviceType == 1) ? speed : 0.0;
-    double currentCourse = (deviceType == 1) ? deviceCourse : 0.0;
-
-    pckt.safetyPacket(deviceID, deviceType, deviceLatitude, deviceLongitude, safetyPacket, currentSpeed, currentCourse, deviceHdop);
-
     lora.sendData(safetyPacket, SAFETY_PACKET_SIZE);
 }
 

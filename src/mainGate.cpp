@@ -32,6 +32,7 @@ void loop()
     mqtt.handle();
 
     if(gate.receive()){
+        
         Serial.println("dados recebidos:");
         Serial.print("ID: "); Serial.println(gate.getID());
         Serial.print("Latitude: "); Serial.println(gate.getLatitude(), 6);
@@ -48,6 +49,11 @@ void loop()
         }
 
         uint8_t id = gate.getID();
+        uint16_t randomPacketID = gate.getRandomPacketID();
+
+        gate.buildAck(id, randomPacketID);
+        gate.sendAck();
+
         uint8_t deviceType = gate.getDeviceType();
         double lat = gate.getLatitude();
         double lng = gate.getLongitude();
