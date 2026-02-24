@@ -14,7 +14,7 @@ ActiveVehicles nearbyVehicles[MAX_VEHICLES] = {};
 
 unsigned long jitterTargetTime = 0;
 
-MqttGateway mqtt("Iphone do Japa", "qualquer123!", "172.20.10.6");
+MqttGateway mqtt("TSA_CORPORATIVO", "tsatecnologia", "172.16.2.18");
 
 void setup() {
     Serial.begin(115200);
