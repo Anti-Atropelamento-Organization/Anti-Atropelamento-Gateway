@@ -59,7 +59,7 @@ void StartReceive();
   * @brief Obtém a taxa de envio da dados
   *   
  */
-    float getDataRate();
+    // float getDataRate();
   /**
   * @brief Obtém o tempo de ocupação do módulo para envio de dados
   *   

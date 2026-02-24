@@ -66,7 +66,7 @@ void MqttGateway::publishData(uint8_t id, uint8_t deviceType, double lat, double
     
     if (client.publish("gateway/data", buffer)) {
         Serial.println();
-        Serial.print("MQTT Enviado: ");
-        Serial.println(buffer);
+        // Serial.print("MQTT Enviado: ");
+        // Serial.println(buffer);
     }
 }

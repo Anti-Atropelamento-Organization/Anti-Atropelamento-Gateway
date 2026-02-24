@@ -10,7 +10,8 @@ DeviceBase::DeviceBase() {
 
 void DeviceBase::setup() {
     lora.begin();
-    lora.SpreadingFactor(7);
+    lora.SpreadingFactor(9);
+    //lora.StartReceive();
     lora.receiveData(receivedPacket, 0, 0);
 }
 
@@ -56,16 +57,21 @@ void DeviceBase::setHdop() { deviceHdop = gps.hdop.hdop(); }
 
 
 void DeviceBase::sendSafety() {
+    double currentSpeed = (deviceType == 1) ? speed : 0.0;
+    double currentCourse = (deviceType == 1) ? deviceCourse : 0.0;
+
+    pckt.safetyPacket(deviceID, deviceType, deviceLatitude, deviceLongitude, safetyPacket, currentSpeed, currentCourse, deviceHdop);
+
     lora.sendData(safetyPacket, SAFETY_PACKET_SIZE);
 }
 
 void DeviceBase::sendMonitoring() {
-    Serial.println("Tamanho do pacote de monitoramento: " + String(MONITORING_PACKET_SIZE));
+    //Serial.println("Tamanho do pacote de monitoramento: " + String(MONITORING_PACKET_SIZE));
     lora.sendData(monitoringPacket, MONITORING_PACKET_SIZE);
 }
 
 void DeviceBase::sendLog() {
-    Serial.println("Tamanho do pacote de log: " + String(LOG_PACKET_SIZE));
+    //Serial.println("Tamanho do pacote de log: " + String(LOG_PACKET_SIZE));
     lora.sendData(logPacket, LOG_PACKET_SIZE);
 }
 
@@ -73,9 +79,9 @@ bool DeviceBase::receive() {
 
     if (lora.receiveData(receivedPacket, 255, 100)) { 
         
-        uint8_t result = pckt.decodePacket(receivedPacket, this->deviceType);
+        lastPacketID = pckt.decodePacket(receivedPacket, this->deviceType);
         
-        if (result == 0) {
+        if (lastPacketID == 0) {
             return false;
         }
 
@@ -174,6 +180,24 @@ uint8_t DeviceBase::getReceivedID() {
     return pckt.getDeviceID();
 }
 
+uint8_t DeviceBase::getTypePacket(){
+    return lastPacketID;
+}
+
 uint16_t DeviceBase::getRandomPacketID() {
     return pckt.getAckRandomID();
+}
+
+uint16_t DeviceBase::getMyRandomLogID(){
+    return this->LogRandomID;
+}
+
+uint16_t DeviceBase::getMyRandomMonitoringID(){
+    return this->monitoringRandomID;
+}
+
+void DeviceBase::cleanEvents()
+{
+ memset(last5events, 0, sizeof(last5events));
+
 }
