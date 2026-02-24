@@ -173,3 +173,7 @@ double DeviceBase::getReceivedLng() {
 uint8_t DeviceBase::getReceivedID() {
     return pckt.getDeviceID();
 }
+
+uint16_t DeviceBase::getRandomPacketID() {
+    return pckt.getAckRandomID();
+}

@@ -21,7 +21,7 @@ public:
     uint8_t getStatus();
     uint8_t getSatellites();
     double getHdop();
-    uint16_t getRandomPacketID();
+    
     void sendAck();
     void buildAck(uint8_t targetID, uint16_t packetID);
 };

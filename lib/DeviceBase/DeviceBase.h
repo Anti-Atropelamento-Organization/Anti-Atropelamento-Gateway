@@ -67,6 +67,8 @@ public:
 
     uint8_t getReceivedID();
 
+    uint16_t getRandomPacketID();
+
 protected:
 
     virtual void buildSafetyPacket() = 0;
