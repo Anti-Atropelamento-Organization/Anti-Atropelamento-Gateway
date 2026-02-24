@@ -57,11 +57,11 @@ void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, 
     pkt.packetType = MONITORING_PACKET;
     pkt.id = ID;
     pkt.deviceType = deviceType;
-    pkt.lat = latitude; // Cuidado: double no ESP32 é 8 bytes. Se o receptor for 8-bit, pode dar erro.
-    pkt.lng = longitude;
+    pkt.lat = mapDoubleToInt32(latitude);
+    pkt.lng = mapDoubleToInt32(longitude);
     pkt.batteryLevel = batteryLevel;
     pkt.satellites = satellites;
-    pkt.hdop = hdop;
+    pkt.hdop = mapDoubleToUint8(hdop);
     pkt.status = status;
 
     memcpy(returnPacket, &pkt, sizeof(MonitoringPayload));
@@ -145,7 +145,7 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         monitoringPacketData.batteryLevel = pkt->batteryLevel;
         monitoringPacketData.status = pkt->status;
         monitoringPacketData.satellites = pkt->satellites;
-        monitoringPacketData.hdop = pkt->hdop;
+        monitoringPacketData.hdop = mapUint8ToFloat(pkt->hdop);
 
         Serial.println("[decodePacket] Pacote de monitoramento decodificado:");
         Serial.println("ID: " + String(monitoringPacketData.ID));
@@ -189,6 +189,9 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
     else if(packetID == ACK_PACKET) {
         AckPayload *pkt = (AckPayload*)receivedPacket;
 
+        Serial.println("[decodePacket] Pacote de ACK decodificado:");
+        Serial.println("ID: " + String(pkt->ID));
+        
         ackData.ID = pkt->ID;
         ackData.RandomID = pkt->RandomID;
     }
@@ -249,7 +252,7 @@ float packet::getLat() {
     if(_lastDecodedPacketType == SAFETY_PACKET) {
         return (float)safetyPacketData.lat / 1000000.0;
     } else if(_lastDecodedPacketType == MONITORING_PACKET) {
-        return monitoringPacketData.lat;
+        return monitoringPacketData.lat / 1000000.0;
     }
     return 0.0;
 }
@@ -258,7 +261,7 @@ float packet::getLng() {
     if(_lastDecodedPacketType == SAFETY_PACKET) {
         return (float)safetyPacketData.lng / 1000000.0;
     } else if(_lastDecodedPacketType == MONITORING_PACKET) {
-        return monitoringPacketData.lng;
+        return monitoringPacketData.lng / 1000000.0;
     }
     return 0.0;
 }
