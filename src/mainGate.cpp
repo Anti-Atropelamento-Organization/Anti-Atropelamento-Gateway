@@ -20,14 +20,14 @@ void setup() {
     Serial.println("Gateway LoRa iniciado.");
     delay(2000); // Pequena pausa para garantir que tudo esteja pronto
 
-    mqtt.begin();
+    //mqtt.begin();
     Serial.println("MQTT Gateway iniciado.");
     delay(1000);
 }
 void loop()
 {
     //MF.SendPacketDevice(gate, st_1, st_2, jitterTargetTime); // Usando o timeout do timer como referência para o jitter
-    mqtt.handle();
+    //mqtt.handle();
 
     if(gate.receive()){
         
@@ -37,8 +37,12 @@ void loop()
 
         uint8_t id = gate.getID();
         uint16_t randomPacketID = gate.getRandomPacketID();
+        
+        Serial.println();
         gate.getTypePacket() == MONITORING_PACKET ? Serial.println("Pacote de Monitoramento recebido.") : Serial.println("Pacote de Log recebido.");
         Serial.println("Pacote recebido do ID: " + String(id) + " com RandomID: " + String(randomPacketID));
+        gate.getDeviceType() == VEHICLE_DEVICE ? Serial.println("Tipo do dispositivo: Veículo") : Serial.println("Tipo do dispositivo: Pessoal");
+        Serial.println();
 
         gate.buildAck(id, randomPacketID);
         gate.sendAck();

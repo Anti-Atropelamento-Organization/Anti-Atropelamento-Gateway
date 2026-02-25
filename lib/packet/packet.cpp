@@ -113,12 +113,6 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
     uint8_t packetType = receivedPacket[2];
     int32_t longitude = receivedPacket[5];
 
-    Serial.println("### PacketType: " + String(receivedPacket[0]));
-    Serial.println("### ID: " + String(receivedPacket[1]));
-    Serial.println("### DeviceType: " + String(receivedPacket[2]));
-    Serial.println("### RandomID: " + String(receivedPacket[3]));
-
-
     _lastDecodedPacketType = packetID; 
 
     if (packetType == myDeviceType){
