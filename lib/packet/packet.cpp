@@ -151,8 +151,6 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         monitoringPacketData.satellites = pkt->satellites;
         monitoringPacketData.hdop = mapUint8ToFloat(pkt->hdop);
 
-        Serial.print("ID: "); Serial.println(monitoringPacketData.ID);
-
     } else if (packetID == ADVERTISE_PACKET) {
         AdvertisePayload *pkt = (AdvertisePayload*)receivedPacket;
         
