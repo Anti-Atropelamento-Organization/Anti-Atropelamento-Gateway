@@ -1,5 +1,6 @@
 #include "MqttGateway.h"
 
+
 MqttGateway::MqttGateway(const char* ssid, const char* password, const char* brokerIp) 
     : ssid(ssid), password(password), brokerIp(brokerIp), client(espClient) {}
 
@@ -43,7 +44,7 @@ bool MqttGateway::isConnected() {
     return client.connected();
 }
 
-void MqttGateway::publishData(uint8_t id, uint8_t deviceType, double lat, double lng, uint8_t battery, uint8_t status, double hdop, uint8_t events[5]) {
+void MqttGateway::publishDataMonitoring(uint8_t id, uint8_t deviceType, double lat, double lng, uint8_t battery, uint8_t status, double hdop) {
     JsonDocument doc;
     
     doc["id"] = id;
@@ -54,11 +55,6 @@ void MqttGateway::publishData(uint8_t id, uint8_t deviceType, double lat, double
     doc["status"] = status;
     doc["hdop"] = hdop;
     
-    JsonArray envtArray = doc["eventos"].to<JsonArray>();
-    for(int i=0; i<5; i++) {
-        envtArray.add(events[i]);
-    }
-    
     doc["timestamp"] = millis();
 
     char buffer[256];
@@ -66,7 +62,49 @@ void MqttGateway::publishData(uint8_t id, uint8_t deviceType, double lat, double
     
     if (client.publish("gateway/data", buffer)) {
         Serial.println();
-        // Serial.print("MQTT Enviado: ");
-        // Serial.println(buffer);
+        Serial.print("MQTT Monitoring Enviado");
+    }
+}
+
+void MqttGateway::publishDataLog(uint8_t id, uint8_t deviceType, int32_t lastPositions[5][2], uint8_t events[5], ActiveVehicles nearbyVehicles[MAX_VEHICLES]) {
+
+    JsonDocument doc; 
+
+    doc["id"] = id;
+    doc["deviceType"] = deviceType;
+
+    JsonArray positionsArray = doc["lastPositions"].to<JsonArray>();
+    for (int i = 0; i < 5; i++) {
+        JsonArray pos = positionsArray.add<JsonArray>();
+        pos.add(lastPositions[i][0]);
+        pos.add(lastPositions[i][1]);
+    }
+
+    JsonArray eventsArray = doc["events"].to<JsonArray>();
+    for (int i = 0; i < 5; i++) {
+        eventsArray.add(events[i]);
+    }
+
+    JsonArray vehiclesArray = doc["nearbyVehicles"].to<JsonArray>();
+    for (int i = 0; i < MAX_VEHICLES; i++) {
+        // Só adiciona se o veículo for válido (ex: id diferente de 0) para economizar espaço
+        if(nearbyVehicles[i].id != 0) { 
+            JsonObject veh = vehiclesArray.add<JsonObject>();
+            veh["id"] = nearbyVehicles[i].id;
+            veh["dist"] = nearbyVehicles[i].distance; // nomes curtos economizam bytes
+            veh["seen"] = nearbyVehicles[i].lastSeenMs;
+        }
+    }
+
+    doc["ts"] = millis();
+
+
+    char buffer[1024]; 
+    serializeJson(doc, buffer);
+
+    if (client.publish("gateway/log", buffer)) {
+        Serial.println("\nMQTT Log Enviado com sucesso!");
+    } else {
+        Serial.println("\nFalha ao enviar MQTT Log - Payload muito grande ou sem conexão");
     }
 }

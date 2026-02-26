@@ -66,7 +66,7 @@ double LoraGateway::getHdop()
 
 
 void LoraGateway::sendAck() {
-    Serial.println("[LoraGateway] Enviando ACK...");
+    Serial.println("Enviando ACK...");
     lora.sendData(ackPacket, ACK_PACKET_SIZE);
 }
 
