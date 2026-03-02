@@ -12,6 +12,8 @@ ActiveVehicles nearbyVehicles[MAX_VEHICLES] = {};
 
 unsigned long jitterTargetTime = 0;
 
+
+// MqttGateway mqtt("NET_2GE8461A", "DDE8461A", "192.168.0.17");
 MqttGateway mqtt("TSA_CORPORATIVO", "tsatecnologia", "172.16.2.18");
 
 void setup() {
@@ -46,7 +48,22 @@ void loop()
             double lng = gate.getLongitude();
             uint8_t battery = gate.getBatteryLevel();
             uint8_t status = gate.getStatus();
-            double hdop = gate.getHdop();
+            float hdop = gate.getHdop();
+
+            Serial.print("ID: ");
+            Serial.println(id);
+            Serial.print("Latitude: ");
+            Serial.println(lat, 6);
+            Serial.print("Longitude: ");
+            Serial.println(lng, 6);
+            Serial.print("Bateria: ");
+            Serial.println(battery);
+            Serial.print("Status: ");
+            Serial.println(status);
+            Serial.print("HDOP: ");
+            Serial.println(hdop);
+            Serial.println();
+            Serial.println();
             mqtt.publishDataMonitoring(id, deviceType, lat, lng, battery, status, hdop);
         } else if(gate.getTypePacket() == LOG_PACKET) {
             Serial.println("Pacote de Log recebido.");

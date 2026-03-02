@@ -201,3 +201,4 @@ void DeviceBase::cleanEvents()
  memset(last5events, 0, sizeof(last5events));
 
 }
+

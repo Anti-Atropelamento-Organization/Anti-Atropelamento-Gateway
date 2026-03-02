@@ -29,7 +29,7 @@ uint32_t lastSeenMs;
 
 struct __attribute__((packed)) AckPayload {
     uint8_t packetType;
-    uint8_t ID; // ID do destinatário
+    uint8_t ID; 
     uint16_t RandomID;
 };
 
@@ -71,7 +71,7 @@ struct __attribute__((packed)) MonitoringPayload {
     uint8_t batteryLevel;
     uint8_t status;
     uint8_t satellites;
-    uint8_t hdop;
+    double hdop;
 };
 
 // !!! ADICIONE ISSO AQUI !!!
@@ -130,6 +130,7 @@ struct AdvertiseData {
 };
 
 struct AckData {
+    uint8_t packetID;
     uint8_t ID;
     uint16_t RandomID;
 };

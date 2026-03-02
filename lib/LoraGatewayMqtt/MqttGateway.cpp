@@ -6,7 +6,8 @@ MqttGateway::MqttGateway(const char* ssid, const char* password, const char* bro
 
 void MqttGateway::begin() {
     setupWifi();
-    client.setServer(brokerIp, 1883);
+    client.setServer(brokerIp, 1884);
+    client.setBufferSize(1024); // Aumenta o buffer para permitir payloads maiores
 }
 
 void MqttGateway::setupWifi() {

@@ -72,7 +72,7 @@ void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, uint16_t randomID
     pkt.lng = mapDoubleToInt32(longitude);
     pkt.batteryLevel = batteryLevel;
     pkt.satellites = satellites;
-    pkt.hdop = mapDoubleToUint8(hdop);
+    pkt.hdop = hdop;
     pkt.status = status;
 
     memcpy(returnPacket, &pkt, sizeof(MonitoringPayload));
@@ -95,8 +95,8 @@ void packet::logPacket(uint8_t ID, uint8_t deviceID, uint16_t randomID,  int32_t
 
     pkt.packetType = LOG_PACKET;
     pkt.id = ID;
+    pkt.deviceType = deviceID;
     pkt.randomID = randomID;
-    pkt.deviceType = VEHICLE_DEVICE; // Supondo que só veículos enviam log
     memcpy(pkt.last5positions, last5positions, sizeof(pkt.last5positions));
     memcpy(pkt.last5events, last5events, sizeof(pkt.last5events));
     memcpy(pkt.nearbyVehicles, nearbyVehicles, sizeof(pkt.nearbyVehicles));
@@ -108,14 +108,14 @@ void packet::logPacket(uint8_t ID, uint8_t deviceID, uint16_t randomID,  int32_t
 
 uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
     uint8_t packetID = receivedPacket[0];
-    uint16_t packet1 = receivedPacket[1];
-    uint16_t randomID = receivedPacket[3];
     uint8_t packetType = receivedPacket[2];
     int32_t longitude = receivedPacket[5];
 
-    _lastDecodedPacketType = packetID; 
 
-    if (packetType == myDeviceType){
+
+    _lastDecodedPacketType = packetID;
+
+    if (packetType == myDeviceType && packetID != ACK_PACKET){
         Serial.println("Ignorando pacote do mesmo tipo." + String(packetType) + " " + String(myDeviceType));
         return 0;
     }
@@ -143,13 +143,13 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         monitoringPacketData.packetID = pkt->packetType;
         monitoringPacketData.ID = pkt->id; // Agora lê corretamente
         monitoringPacketData.deviceType = pkt->deviceType;
-        monitoringPacketData.randomID = pkt->randomID;
         monitoringPacketData.lat = pkt->lat;
         monitoringPacketData.lng = pkt->lng;
         monitoringPacketData.batteryLevel = pkt->batteryLevel;
         monitoringPacketData.status = pkt->status;
         monitoringPacketData.satellites = pkt->satellites;
-        monitoringPacketData.hdop = mapUint8ToFloat(pkt->hdop);
+        monitoringPacketData.hdop = pkt->hdop;
+
 
     } else if (packetID == ADVERTISE_PACKET) {
         AdvertisePayload *pkt = (AdvertisePayload*)receivedPacket;
@@ -165,7 +165,6 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         logPacketData.packetID = pkt->packetType;
         logPacketData.ID = pkt->id;
         logPacketData.deviceType = pkt->deviceType;
-        logPacketData.randomID = pkt->randomID;
         memcpy(logPacketData.last5positions, pkt->last5positions, sizeof(pkt->last5positions));
         memcpy(logPacketData.last5events, pkt->last5events, sizeof(pkt->last5events));
         memcpy(logPacketData.nearbyVehicles, pkt->nearbyVehicles, sizeof(pkt->nearbyVehicles));
@@ -173,6 +172,7 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
 
     else if(packetID == ACK_PACKET) {
         AckPayload *pkt = (AckPayload*)receivedPacket;
+        logPacketData.packetID = pkt->packetType;
         ackPacketData.ID = pkt->ID;
         ackPacketData.RandomID = pkt->RandomID;
     }

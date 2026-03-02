@@ -37,7 +37,7 @@ double LoraGateway::getLongitude()
 }
 uint8_t LoraGateway::getBatteryLevel()
 {
-    return 0;
+    return pckt.getBatteryLevel();
 }
 void LoraGateway::getLastPositions(int32_t (&positions)[5][2])
 {
