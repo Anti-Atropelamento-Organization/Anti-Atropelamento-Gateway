@@ -143,6 +143,7 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         monitoringPacketData.packetID = pkt->packetType;
         monitoringPacketData.ID = pkt->id; // Agora lê corretamente
         monitoringPacketData.deviceType = pkt->deviceType;
+        monitoringPacketData.randomID = pkt->randomID;
         monitoringPacketData.lat = pkt->lat;
         monitoringPacketData.lng = pkt->lng;
         monitoringPacketData.batteryLevel = pkt->batteryLevel;
@@ -165,6 +166,7 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         logPacketData.packetID = pkt->packetType;
         logPacketData.ID = pkt->id;
         logPacketData.deviceType = pkt->deviceType;
+        logPacketData.randomID = pkt->randomID;
         memcpy(logPacketData.last5positions, pkt->last5positions, sizeof(pkt->last5positions));
         memcpy(logPacketData.last5events, pkt->last5events, sizeof(pkt->last5events));
         memcpy(logPacketData.nearbyVehicles, pkt->nearbyVehicles, sizeof(pkt->nearbyVehicles));
@@ -291,6 +293,7 @@ void packet::getNearbyVehicles(ActiveVehicles (&vehicles)[MAX_VEHICLES]) {
 
 uint16_t packet::getAckRandomID() {
     if(_lastDecodedPacketType == MONITORING_PACKET) {
+        Serial.println("Obtendo RandomID do pacote de Monitoramento: " + String(monitoringPacketData.randomID));
         return monitoringPacketData.randomID;
     }
     else if(_lastDecodedPacketType == LOG_PACKET) {

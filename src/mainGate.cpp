@@ -14,7 +14,7 @@ unsigned long jitterTargetTime = 0;
 
 
 // MqttGateway mqtt("NET_2GE8461A", "DDE8461A", "192.168.0.17");
-MqttGateway mqtt("TSA_CORPORATIVO", "tsatecnologia", "172.16.2.18");
+MqttGateway mqtt("TSA_CORPORATIVO", "tsatecnologia", "172.16.2.14");
 
 void setup() {
     Serial.begin(115200);
@@ -62,6 +62,8 @@ void loop()
             Serial.println(status);
             Serial.print("HDOP: ");
             Serial.println(hdop);
+            Serial.print("RandomID: ");
+            Serial.println(randomPacketID); 
             Serial.println();
             Serial.println();
             mqtt.publishDataMonitoring(id, deviceType, lat, lng, battery, status, hdop);
