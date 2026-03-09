@@ -1,6 +1,7 @@
 #include "DeviceBase.h"
 
 DeviceBase::DeviceBase() {
+    // Inicializa histórico de posições e eventos com estado neutro.
     for (int i = 0; i < 5; i++) {
         last5positions[i][0] = 0;
         last5positions[i][1] = 0;
@@ -9,6 +10,7 @@ DeviceBase::DeviceBase() {
 }
 
 void DeviceBase::setup() {
+    // Configuração base do rádio para iniciar em modo recepção.
     lora.begin();
     lora.SpreadingFactor(9);
     //lora.StartReceive();
@@ -16,6 +18,7 @@ void DeviceBase::setup() {
 }
 
 void DeviceBase::alimentandoGPS() {
+    // Drena buffer serial do GPS e alimenta o parser continuamente.
     while (SerialGPS.available() > 0) {
         gps.encode(SerialGPS.read());
     }
@@ -57,6 +60,7 @@ void DeviceBase::setHdop() { deviceHdop = gps.hdop.hdop(); }
 
 
 void DeviceBase::sendSafety() {
+    // Apenas veículo transmite velocidade/curso no pacote Safety.
     double currentSpeed = (deviceType == 1) ? speed : 0.0;
     double currentCourse = (deviceType == 1) ? deviceCourse : 0.0;
 
@@ -76,11 +80,12 @@ void DeviceBase::sendLog() {
 }
 
 bool DeviceBase::receive() {
-
+    // Tenta receber, decodifica e expõe o resultado via hook de extensão.
     if (lora.receiveData(receivedPacket, 255, 100)) { 
         
         lastPacketID = pckt.decodePacket(receivedPacket, this->deviceType);
         
+        // ID 0 indica pacote inválido ou não reconhecido pelo protocolo.
         if (lastPacketID == 0) {
             return false;
         }
@@ -92,6 +97,7 @@ bool DeviceBase::receive() {
 }
 
 bool DeviceBase::isChannelBusy(int channel) {
+    // Ajusta SF e payload conforme o tipo de tráfego antes da avaliação do canal.
     if (channel == SAFETY_CHANNEL) {
         lora.SpreadingFactor(safetySF());
         buildSafetyPacket();
@@ -104,6 +110,7 @@ bool DeviceBase::isChannelBusy(int channel) {
 }
 
 void DeviceBase::updateFromBluetooth(String rawData) {
+    // Formato esperado: "id;lat;lng".
     int firstSemi = rawData.indexOf(';');
     int secondSemi = rawData.indexOf(';', firstSemi + 1);
 
@@ -120,6 +127,7 @@ void DeviceBase::updateFromBluetooth(String rawData) {
 }
 
 float DeviceBase::calculateDistance(double targetLat, double targetLng) {
+    // Distância efetiva desconta o raio de segurança primário.
     double distance = gps.distanceBetween(deviceLatitude, deviceLongitude, targetLat, targetLng);
     if (distance - getRadius(0) < 0) {
         return 0.0;
@@ -128,6 +136,7 @@ float DeviceBase::calculateDistance(double targetLat, double targetLng) {
 }
 
 void DeviceBase::sendAlert(uint8_t alertType, uint8_t targetID) {
+    // Monta e transmite anúncio de alerta pontual para um destino.
     uint8_t alertPacket[ADVERTISE_PACKET_SIZE];
     pckt.advertisePacket(alertType, targetID, alertPacket);
     lora.sendData(alertPacket, sizeof(alertPacket));
@@ -141,6 +150,7 @@ double DeviceBase::getRadius(int index) const {
 }
 
 void DeviceBase::setRadius(double hdop) {
+    // O HDOP influencia os três níveis de raio; regras variam por tipo de dispositivo.
     if (deviceType == 1) {
         for (int i = 0; i < 3; i++) {
             if (i == 0) {
@@ -198,6 +208,7 @@ uint16_t DeviceBase::getMyRandomMonitoringID(){
 
 void DeviceBase::cleanEvents()
 {
+ // Limpa o histórico circular de eventos para reiniciar alertas locais.
  memset(last5events, 0, sizeof(last5events));
 
 }
